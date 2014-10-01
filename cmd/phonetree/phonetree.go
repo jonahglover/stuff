@@ -32,6 +32,8 @@ type Page struct {
 }
 
 func fixPhone(s string) string {
+    return strings.Replace(s, "C:", " C:", -1)
+    /*
 	r := []rune(s)
 	j := 0
 	for i := range r {
@@ -48,6 +50,7 @@ func fixPhone(s string) string {
 		return ""
 	}
 	return string(r[:3]) + "-" + string(r[3:6]) + "-" + string(r[6:10])
+    */
 }
 
 func main() {
@@ -57,8 +60,8 @@ func main() {
 	}
 
 	nameIndex := column("Name", records)
-	homeIndex := column("Home Phone", records)
-	cellIndex := column("Cell Phone", records)
+	homeIndex := column("Phone", records)
+	//cellIndex := column("Cell Phone", records)
 	leadershipIndex := column("Leadership", records)
 	patrolIndex := column("Patrol", records)
 
@@ -108,7 +111,7 @@ func main() {
 		s := &Scout{
 			Name:   record[nameIndex],
 			Home:   fixPhone(record[homeIndex]),
-			Cell:   fixPhone(record[cellIndex]),
+			//Cell:   fixPhone(record[cellIndex]),
 			Patrol: record[patrolIndex],
 		}
 
@@ -205,9 +208,9 @@ var tmpl = template.Must(template.New("").Parse(`<!DOCTYPE html>
     {{end}}
 
     <table>
-        <tr><td>Name</td><td>Home</td><td>Cell</td><td>Position</td></tr>
+        <tr><td>Name</td><td>Phone</td><td>Position</td></tr>
     {{range $page.Scouts}}
-        <tr><td>{{.Name}}</td><td>{{.Home}}</td><td>{{.Cell}}</td><td>{{.Leadership}}</td></tr>
+        <tr><td>{{.Name}}</td><td>{{.Home}}</td><td>{{.Leadership}}</td></tr>
     {{end}}
     </table>
     </div>

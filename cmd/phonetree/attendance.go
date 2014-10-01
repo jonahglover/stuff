@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"os"
+	"strings"
 )
 
 func column(name string, records [][]string) int {
@@ -17,11 +18,6 @@ func column(name string, records [][]string) int {
 	return 0
 }
 
-type Scout struct {
-	Name       string
-	Patrol     string
-}
-
 func main() {
 	records, err := csv.NewReader(os.Stdin).ReadAll()
 	if err != nil {
@@ -29,17 +25,22 @@ func main() {
 	}
 
 	nameIndex := column("Name", records)
-	patrolIndex := column("Patrol", records)
+	records = records[1:]
 
-    patrols := make(map[string][]string)
+	var scouts []string
+	for _, record := range records {
+		n := strings.Split(record[nameIndex], "\"")[0]
+		if n == "" {
+			continue
+		}
+		scouts = append(scouts, n)
+	}
 
-	for _, record := range records[1:] {
-        patrol := record[patrolIndex]
-        name := record[nameIndex]
-        patrols[patrol] = append(patrols[patrol], name)
-    }
+	split1 := len(scouts) / 3
+	split2 := 2 * len(scouts) / 3
+    cols := [][]string{scouts[:split1], scouts[split1:split2], scouts[split2:]}
 
-	if err := tmpl.Execute(os.Stdout, patrols); err != nil {
+	if err := tmpl.Execute(os.Stdout, cols); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -48,26 +49,20 @@ var tmpl = template.Must(template.New("").Parse(`<!DOCTYPE html>
 <html>
 <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
 <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
-<style>
-    td { padding-right: 2ex; }
-</style>
-<style media="print">
-    html { font-size: 16px }
-    div.page { page-break-after: always; page-break-inside: avoid; }
-</style>
 <body>
 <div class="container">
-{{range $patrol, $scouts := .}}
-    <div class="page">
-    <h4>{{$patrol}}</h4>
-    <table class="table table-bordered">
-        <tr><th>Name</th><th>Sept 8</th><th>Sept 15</th><th>Sept 29</th><th>Oct 6</th></tr>
-    {{range $scouts}}
-        <tr><td>{{.}}</td><td><td></td><td></td><td></td></tr>
-    {{end}}
-    </table>
+    <div class="row">
+        <h3 class="text-center">Troop Meeting Attendance</h3>
     </div>
-{{end}}
+    <div class="row">
+        {{range .}}
+            <div class="col-xs-4">
+                <table class="table table-condensed">
+                    {{range .}}<tr><td>&#9633;</td><td>{{.}}</td></tr>{{end}}
+                </table>
+            </div>
+        {{end}}
+    </div>
 </div>
 </body>
 </html>
