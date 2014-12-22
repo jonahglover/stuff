@@ -19,6 +19,7 @@ import (
     "regexp"
     "log"
     "bufio"
+    "os"
 )
 
 var pats = []*regexp.Regexp{
@@ -29,7 +30,11 @@ var pats = []*regexp.Regexp{
 
 func main() {
     log.SetFlags(0)
-    r, err := http.Get("http://localhost:8080/")
+    if len(os.Args) != 2 {
+        log.Fatal("url not specified")
+    }
+    log.Print(os.Args[1])
+    r, err := http.Get(os.Args[1])
     if err != nil {
         log.Fatal(err)
     }
